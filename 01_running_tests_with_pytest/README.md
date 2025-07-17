@@ -1,3 +1,3 @@
 Commands for pytest:
-pytest
-pytest -v
+- pytest
+- pytest -v
