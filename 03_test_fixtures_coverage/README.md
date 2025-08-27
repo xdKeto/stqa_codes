@@ -1,6 +1,6 @@
+Add pytest options to configuration file pytest.ini.
 Commands for running tests:
-- pytest -v --cov=models
-- pytest -v --cov=models --cov-report=term-missing
+- pytest
 
 To do list:
 1. Create class-level fixtures:  
