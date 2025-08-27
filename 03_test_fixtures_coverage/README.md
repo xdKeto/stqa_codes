@@ -76,6 +76,10 @@ def test_repr(self):
 ```
 
 ```py
+from random import randrange
+```
+
+```py
 def setUp(self):
    self.rand = randrange(0, len(ACCOUNT_DATA))
 
@@ -116,6 +120,9 @@ def test_update_an_account(self):
     self.assertEqual(found.name, account.name)
 ```
 
+```py
+from models.account import DataValidationError
+```
 ```py
 def test_invalid_id_on_update(self):
     """ Test invalid ID update """
