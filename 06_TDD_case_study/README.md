@@ -1,6 +1,6 @@
 ## Create a counter
 
-You will start by implementing a test case to test creating a counter. Following REST API guidelines, a create uses a `POST` request and returns code `201_CREATED` if successful. You can call the routes of the app client using the syntax `client.<METHOD>("<ROUTE>")`, for example `client.post("/counters/<name>)`.
+You will start by implementing a test case to test creating a counter. Following REST API guidelines, a create uses a `POST` request and returns code `201_CREATED` if successful. You can call the routes of the app client using the syntax `client.<METHOD>("<ROUTE>")`, for example `client.post("/counters/<name>")`.
 
 Then you’ll write the code to make the test pass. Use the route `/counters/<name>` with the method `POST`. You can store the counter data in a global variable. Create a function that creates a counter with the specified name.
 
