@@ -69,7 +69,7 @@ pytest
 The results should look like this:
 
 ```
-tests/test_imdb.py::TestIMDbDatabase::test_search_by_title <span style="color:green">PASSED</span>
+tests/test_imdb.py::TestIMDbDatabase::test_search_by_title PASSED
 
 Name                 Stmts   Miss  Cover   Missing
 --------------------------------------------------
@@ -142,6 +142,9 @@ pytest
 The results should look like this:
 
 ```
+tests/test_imdb.py::TestIMDbDatabase::test_search_by_title PASSED
+tests/test_imdb.py::TestIMDbDatabase::test_search_with_no_results PASSED
+
 Name                 Stmts   Miss  Cover   Missing
 --------------------------------------------------
 models/__init__.py       1      0   100%
