@@ -27,7 +27,7 @@ Copy and paste this code into `test_imdb.py` as the first test but don't run it 
 ```py
 def test_search_by_title(self):
     """Test searching by title"""
-    imdb = IMDb("fake_api_key")
+    imdb = IMDb("fake_valid_api_key")
     results = imdb.search_titles("Bambi")
     self.assertIsNotNone(results)
     self.assertIsNone(results["errorMessage"])
@@ -77,10 +77,6 @@ models/__init__.py       1      0   100%
 models/imdb.py          24     15    38%   19-23, 27-31, 35-39
 --------------------------------------------------
 TOTAL                   25     15    40%
-----------------------------------------------------------------------
-Ran 1 test in 0.112s
-
-OK
 ```
 
 ### Solution to step 1
@@ -90,7 +86,7 @@ OK
 def test_search_by_title(self, imdb_mock):
     """Test searching by title"""
     imdb_mock.return_value = IMDB_DATA["GOOD_SEARCH"]
-    imdb = IMDb("fake_api_key")
+    imdb = IMDb("fake_valid_api_key")
     results = imdb.search_titles("Bambi")
     self.assertIsNotNone(results)
     self.assertIsNone(results["errorMessage"])
@@ -98,7 +94,72 @@ def test_search_by_title(self, imdb_mock):
     self.assertEqual(results["results"][0]["id"], "tt1375666")
 ```
 
-## Step 2: Search with No Result
+## Step 2: Modify Search by Title
+
+From the previous step, we can see that we tested calling the `IMDb.search_titles()` method, but the actual method in lines 19-23 of the `IMDb` class are still marked as missing in the coverage report. This is supposed to happen because never called the actual method, since we patched it. In order to cover the code lines in the actual method, we should try patching not the entire `IMDb.search_titles()` method, but the `requests.get()` method that is called inside the `IMDb.search_titles()` method. The `requests.get()` method is the one that calls the real IMDb service and returns a response.
+
+Start by changing the patch target from `test_imdb.IMDb.search_titles` to `requests.get`:
+
+```py
+@patch('models.imdb.requests.get')
+def test_search_by_title(self, imdb_mock):
+```
+
+> Notice that this time we are patching a 3rd party library called `requests`. But it's not the requests package that we have imported into our test module. It's the requests package in the `imdb` module (`models.imdb.requests.get`). Specifically we are patching the `get` function because we know that `IMDb.search_titles()` is going to eventually call the `requests.get()` method to make the call to the IMDb API. We want to intercept (or patch) that call to control what is returned.
+
+Next add this line of code as the first line inside the method after the docstring and before the call to instantiate the `IMDb` class:
+
+```py
+imdb_mock.return_value = Mock(
+    spec=Response,
+    status_code=200,
+    json=Mock(return_value=IMDB_DATA["GOOD_SEARCH"])
+)
+```
+
+> Notice this is patching the `return_value` of the `requests.get()` call with a `Mock` object that has an attribute called `status_code` set to `200`. If we look in the source code for `IMDb.search_titles()` we will see that after the call to `requests.get()` is made, it checks that the `status_code` is `200` and if it is, it then calls `request.json()` to get the payload. This is why we must also mock the call to `json()` and return the payload that we want.
+
+Those two changes are enough to cause the `requests.get()` method to not be called and instead return a `Mock` object with a `status_code` of `200` and a `Response.json()` method that will send back the `GOOD_SEARCH` response.
+
+Run `pytest` and make sure the test cases pass:
+
+```bash
+pytest
+```
+
+The results should look like this:
+
+```
+tests/test_imdb.py::TestIMDbDatabase::test_search_by_title PASSED
+
+Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------
+models\__init__.py       1      0   100%
+models\imdb.py          24     11    54%   23, 27-31, 35-39
+--------------------------------------------------
+TOTAL                   25     11    56%
+```
+
+### Solution to step 2
+
+```py
+@patch('models.imdb.requests.get')
+def test_search_by_title(self, imdb_mock):
+    """Test searching by title"""
+    imdb_mock.return_value = Mock(
+        spec=Response,
+        status_code=200,
+        json=Mock(return_value=IMDB_DATA["GOOD_SEARCH"])
+    )
+    imdb = IMDb("fake_valid_api_key")
+    results = imdb.search_titles("Bambi")
+    self.assertIsNotNone(results)
+    self.assertIsNone(results["errorMessage"])
+    self.assertIsNotNone(results["results"])
+    self.assertEqual(results["results"][0]["id"], "tt1375666")
+```
+
+## Step 3: Search with No Result
 
 Now we are going to slowly get more sophisticated in what we patch and mock. This next test is a "sad path". It will test a call that returns no result.
 
@@ -107,7 +168,7 @@ Start by cutting and pasting the non-patched version of the `test_search_with_no
 ```py
 def test_search_with_no_results(self):
     """Test searching with no results"""
-    imdb = IMDb("fake_api_key")
+    imdb = IMDb("fake_valid_api_key")
     results = imdb.search_titles("Bambi")
     self.assertEqual(results, {})
 ```
@@ -120,8 +181,6 @@ In `test_imdb.py`, add the following line of code before the `test_search_with_n
 @patch('models.imdb.requests.get')
 def test_search_with_no_results(self, imdb_mock):
 ```
-
-> Notice that this time we are patching a 3rd party library called `requests`. But it's not the requests package that we have imported into our test module. It's the requests package in the `imdb` module (`models.imdb.requests.get`) Specifically we are patching the `get` function because we know that `IMDb.search_titles()` is going to eventually call the `requests.get()` method to make the call to the IMDb API. We want to intercept (or patch) that call to control what is returned.
 
 Next add this line of code as the first line inside the method after the docstring and before the call to instantiate the `IMDb` class:
 
@@ -151,34 +210,30 @@ models/__init__.py       1      0   100%
 models/imdb.py          24     11    54%   22, 27-31, 35-39
 --------------------------------------------------
 TOTAL                   25     11    56%
-----------------------------------------------------------------------
-Ran 2 tests in 0.114s
-
-OK
 ```
 
-### Solution to Step 2
+### Solution to Step 3
 
 ```py
 @patch('models.imdb.requests.get')
 def test_search_with_no_results(self, imdb_mock):
     """Test searching with no results"""
     imdb_mock.return_value = Mock(status_code=404)
-    imdb = IMDb("fake_api_key")
+    imdb = IMDb("fake_valid_api_key")
     results = imdb.search_titles("Bambi")
     self.assertEqual(results, {})
 ```
 
-## Step 3: Search by Title Failed
+## Step 4: Search by Title Failed
 
 Next we are going to build another failure test case but this time we need a Mock that behaves like a `Response` object from the `requests` package. We will return a good return code of `200` but we are simulating the use of a bad apikey so we need a specific error message returned. Luckily, we have one in our test fixture data.
 
-Let's start by cutting and pasting the non-patched version of the `test_search_by_title_failed(self)` method into `test_imdb.py`. Here is the code to copy:  
+Let's start by cutting and pasting the non-patched version of the `test_search_by_title_failed(self)` method into `test_imdb.py`. Here is the code to copy:
 
 ```py
 def test_search_by_title_failed(self):
     """Test searching by title failed"""
-    imdb = IMDb("bad-key")
+    imdb = IMDb("invalid_api_key")
     results = imdb.search_titles("Bambi")
     self.assertIsNotNone(results)
     self.assertEqual(results["errorMessage"], "Invalid API Key")
@@ -193,7 +248,7 @@ In `test_imdb.py`, add the following line of code before the `test_search_by_tit
 def test_search_by_title_failed(self, imdb_mock):
 ```
 
-> Notice that once again, we are patching the 3rd part library called `requests` that is imported by the `imdb` module in the `models` package (i.e, `models.imdb.requests.get`) Specifically we are patching the `get` function because we know that `IMDb.search_titles()` is going to eventually call the `requests.get()` method to make the call to the IMDb API. We want to intercept (or patch) that call to control what is returned.
+> Notice that once again, we are patching the 3rd party library called `requests` that is imported by the `imdb` module in the `models` package (i.e, `models.imdb.requests.get`) Specifically we are patching the `get` function because we know that `IMDb.search_titles()` is going to eventually call the `requests.get()` method to make the call to the IMDb API. We want to intercept (or patch) that call to control what is returned.
 
 We are going to send back a good return code of `200` which is going to cause the `IMDb.search_titles()` method to make this call on the returned request: `request.json()`. In order to fool `search_titles()` into thinking it got back a real `requests.Response`, we must use `spec=Response,` when creating the mock so that it behaves like the real `Response` class.
 
@@ -209,10 +264,6 @@ imdb_mock.return_value = Mock(
 )
 ```
 
-> Notice this is patching the `return_value` of the `requests.get()` call with a `Mock` object that has an attribute called `status_code` set to `200`. If we look in the source code for `IMDb.search_titles()` we will see that after the call to `requests.get()` is made, it checks that the `status_code` is `200` and if it is, it then calls `request.json()` to get the payload. This is why we must also mock the call to `json()` and return the payload that we want.
-
-Those two changes are enough to cause the `requests.get()` method to not be called and instead return a `Mock` object with a `status_code` of `200` and a `Response.json()` method that will send back the `INVALID_API` payload that we have specified when called.
-
 Run `pytest` and make sure the test cases pass:
 
 ```bash
@@ -222,10 +273,9 @@ pytest
 The results should look like this:
 
 ```
-Tests Cases for IMDb Database
-- Test searching by title
-- Test searching by title failed
-- Test searching with no results
+tests/test_imdb.py::TestIMDbDatabase::test_search_by_title PASSED
+tests/test_imdb.py::TestIMDbDatabase::test_search_by_title_failed PASSED
+tests/test_imdb.py::TestIMDbDatabase::test_search_with_no_results PASSED
 
 Name                 Stmts   Miss  Cover   Missing
 --------------------------------------------------
@@ -233,13 +283,9 @@ models/__init__.py       1      0   100%
 models/imdb.py          24     10    58%   27-31, 35-39
 --------------------------------------------------
 TOTAL                   25     10    60%
-----------------------------------------------------------------------
-Ran 3 tests in 0.111s
-
-OK
 ```
 
-### Solution to Step 3
+### Solution to Step 4
 
 ```py
 @patch('models.imdb.requests.get')
@@ -250,13 +296,13 @@ def test_search_by_title_failed(self, imdb_mock):
         status_code=200, 
         json=Mock(return_value=IMDB_DATA["INVALID_API"])
     )
-    imdb = IMDb("fake_api_key")
+    imdb = IMDb("fake_valid_api_key")
     results = imdb.search_titles("Bambi")
     self.assertIsNotNone(results)
     self.assertEqual(results["errorMessage"], "Invalid API Key")
 ```
 
-## Step 4: Test Movie Ratings
+## Step 5: Test Movie Ratings
 
 In this final step we are going to test the movie ratings call. Since we don't want to call the real IMDb database under test, we will once again mock the `requests.get()` call and substitute our own movie ratings response from our test fixture data.
 
@@ -267,7 +313,7 @@ Let's start by cutting and pasting the non-patched version of the `test_movie_ra
 ```py
 def test_movie_ratings(self):
     """Test movie Ratings"""
-    imdb = IMDb("fake_api_key")
+    imdb = IMDb("fake_valid_api_key")
     results = imdb.movie_ratings("tt1375666")
     self.assertIsNotNone(results)
     self.assertEqual(results["title"], "Bambi")
@@ -313,11 +359,10 @@ pytest
 The results should look like this:
 
 ```
-Tests Cases for IMDb Database
-- Test movie Ratings
-- Test searching by title
-- Test searching by title failed
-- Test searching with no results
+tests/test_imdb.py::TestIMDbDatabase::test_movie_ratings PASSED
+tests/test_imdb.py::TestIMDbDatabase::test_search_by_title PASSED
+tests/test_imdb.py::TestIMDbDatabase::test_search_by_title_failed PASSED
+tests/test_imdb.py::TestIMDbDatabase::test_search_with_no_results PASSED
 
 Name                 Stmts   Miss  Cover   Missing
 --------------------------------------------------
@@ -325,13 +370,9 @@ models/__init__.py       1      0   100%
 models/imdb.py          24      6    75%   27-31, 39
 --------------------------------------------------
 TOTAL                   25      6    76%
-----------------------------------------------------------------------
-Ran 4 tests in 0.109s
-
-OK
 ```
 
-### Solution to Step 4
+### Solution to Step 5
 
 ```py
 @patch('models.imdb.requests.get')
@@ -342,10 +383,14 @@ def test_movie_ratings(self, imdb_mock):
         status_code=200, 
         json=Mock(return_value=IMDB_DATA["GOOD_RATING"])
     )
-    imdb = IMDb("fake_api_key")
+    imdb = IMDb("fake_valid_api_key")
     results = imdb.movie_ratings("tt1375666")
     self.assertIsNotNone(results)
     self.assertEqual(results["title"], "Bambi")
     self.assertEqual(results["filmAffinity"], 3)
     self.assertEqual(results["rottenTomatoes"], 5)
 ```
+
+## Step 6: Get 100% Coverage
+
+In the next steps, you should write tests in similar fashion for the remaining lines that are not yet covered by tests.
