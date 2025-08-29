@@ -1,7 +1,3 @@
-<style>
-g { color: Green }
-</style>
-
 ## Establishing Test Fixtures
 
 In the `tests/fixtures/` folder you will find a file called `imdb_responses.json`. We created this file by actually calling the IMDb API and recording the responses that came back. Then we gave each one of them a name and placed them into a `json` file to be loaded during test. 
@@ -73,7 +69,7 @@ pytest
 The results should look like this:
 
 ```
-tests/test_imdb.py::TestIMDbDatabase::test_search_by_title <g>PASSED</g>
+tests/test_imdb.py::TestIMDbDatabase::test_search_by_title <span style="color:green">PASSED</span>
 
 Name                 Stmts   Miss  Cover   Missing
 --------------------------------------------------
