@@ -206,10 +206,10 @@ tests/test_imdb.py::TestIMDbDatabase::test_search_with_no_results PASSED
 
 Name                 Stmts   Miss  Cover   Missing
 --------------------------------------------------
-models/__init__.py       1      0   100%
-models/imdb.py          24     11    54%   22, 27-31, 35-39
+models\__init__.py       1      0   100%
+models\imdb.py          24     10    58%   27-31, 35-39
 --------------------------------------------------
-TOTAL                   25     11    56%
+TOTAL                   25     10    60%
 ```
 
 ### Solution to Step 3

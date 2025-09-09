@@ -2,7 +2,26 @@
 
 You will start by implementing a test case to test creating a counter. Following REST API guidelines, a create uses a `POST` request and returns code `201_CREATED` if successful. You can call the routes of the app client using the syntax `client.<METHOD>("<ROUTE>")`, for example `client.post("/counters/<name>")`.
 
-Then you’ll write the code to make the test pass. Use the route `/counters/<name>` with the method `POST`. You can store the counter data in a global variable. Create a function that creates a counter with the specified name.
+Then you’ll write the code to make the test pass. Use the route `/counters/<name>` with the method `POST`. You can store the counter data in a global variable. Create a function that creates a counter with the specified name. You can use a tuple (response, status_code) as the return format of the route function. The response can simply be a python dictionary.
+
+### Solution for Create a counter
+```py
+@app.route("/counters/<name>", methods=["POST"])
+def create_counter(name):
+    """Creates a counter"""
+    global COUNTERS
+    COUNTERS[name] = 1
+    return {name: COUNTERS[name]}, status.HTTP_201_CREATED
+```
+```py
+def test_create_counter(self):
+    result = self.client.post("/counters/test-counter")
+    self.assertEqual(result.status_code, status.HTTP_201_CREATED)
+
+    data = result.get_json()
+    self.assertIn("test-counter", data)
+    self.assertEqual(data["test-counter"], 1)
+```
 
 ## Error in creating a duplicate counter
 
