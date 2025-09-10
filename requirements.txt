@@ -13,6 +13,6 @@ pytest-cov==6.2.1
 factory-boy==2.12.0
 
 # BDD dependencies
-#behave==1.2.6
-#selenium==3.141.0
+behave==1.2.6
+#selenium==4.35.0
 #compare==0.2b0
