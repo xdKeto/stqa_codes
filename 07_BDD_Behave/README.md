@@ -19,7 +19,7 @@ So that <benefit>
 
 Now create a scenario that simulates the behavior of the website when the button is clicked. The scenario should show that when the button is clicked, the counter goes up. Make sure to test button clicks more than 1 time. Use the following Gherkin syntax.
 ```
-Scenario 1: <scenario name>
+Scenario: <scenario name>
     Given ...
     When ...
     Then ...
@@ -32,7 +32,7 @@ Feature: Hit Counter
     I want to be able to click a button to make the counter go up
     So that I can see how many times I have clicked the button
 
-Scenario 1: The counter goes up when the button is clicked
+Scenario: The counter goes up when the button is clicked
     Given the counter is reset
     When a user clicks the "Hit" button
     Then the counter should be at 1
