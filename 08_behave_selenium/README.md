@@ -176,7 +176,7 @@ Finally, implement the `then` steps that assert the state of the web page. This 
 Steps:
 - Use `WebDriverWait` with `expected_conditions` to wait for elements and text to be present. This is crucial for handling dynamic page content.
 - The `flash_message` and `search_results` divs should have the correct IDs.
-- Use `compare.expect` and `compare.ensure` to make your assertions.
+- Make your assertions.
 
 ```py
 @then('I should see the message "{message}"')
@@ -187,7 +187,7 @@ def step_impl(context, message):
             message
         )
     )
-    expect(found).to_be(True)
+    assert(found)
 
 @then('I should see "{name}" in the results')
 def step_impl(context, name):
@@ -197,13 +197,13 @@ def step_impl(context, name):
             name
         )
     )
-    expect(found).to_be(True)
+    assert(found)
 
 @then('I should not see "{name}" in the results')
 def step_impl(context, name):
     element = context.driver.find_element(By.ID, 'search_results')
     error_msg = "I should not see '%s' in '%s'" % (name, element.text)
-    ensure(name in element.text, False, error_msg)
+    assert(name not in element.text)
 ```
 
 ## Step 3: Run the Tests
