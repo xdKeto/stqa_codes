@@ -107,7 +107,7 @@ def step_impl(context, field_name, text_string):
 
 Run the `behave` tests and observe the results. You should see the following output in your terminal.
 
-```
+```gherkin
     Given I am on the "Home Page"                         # features/steps/web_steps.py:26
     When I set the "Pet ID" to "1"                        # features/steps/web_steps.py:31 0.093s
     And I click the "Search" button                       # features/steps/web_steps.py:38 0.067s
