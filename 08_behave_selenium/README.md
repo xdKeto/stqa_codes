@@ -70,7 +70,6 @@ def before_all(context):
     options.add_argument("--no-sandbox")
     options.add_argument("--headless")
     context.driver = webdriver.Chrome(options=options)
-    context.driver.implicitly_wait(context.wait_seconds)
 ```
 
 ### Part 1.4: The Remaining Hooks
@@ -202,7 +201,6 @@ def step_impl(context, name):
 @then('I should not see "{name}" in the results')
 def step_impl(context, name):
     element = context.driver.find_element(By.ID, 'search_results')
-    error_msg = "I should not see '%s' in '%s'" % (name, element.text)
     assert(name not in element.text)
 ```
 
