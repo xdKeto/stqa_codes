@@ -38,3 +38,7 @@ def after_all(context):
     # We need to send a shutdown request to the server
     # to stop the server thread cleanly
     requests.get(f"{BASE_URL}/shutdown")
+    
+def before_scenario(context, scenario):
+    if "continue_after_failed_step" in scenario.effective_tags:
+        scenario.continue_after_failed_step = True
