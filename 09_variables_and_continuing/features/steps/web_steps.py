@@ -64,7 +64,6 @@ def step_impl(context, field_name, state):
         assert(element.is_selected())
     else:
         assert(not element.is_selected())
-        from selenium.webdriver.support.ui import Select
 
 @then('the "{field_name}" select should contain "{text_string}"')
 def step_impl(context, field_name, text_string):
