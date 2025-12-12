@@ -1,6 +1,5 @@
 import random
 import time
-from turtle import st
 
 from locust import HttpUser, SequentialTaskSet, between, task
 

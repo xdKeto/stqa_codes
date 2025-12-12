@@ -3,9 +3,6 @@ Test Cases for Mocking Lab
 """
 import json
 from unittest import TestCase
-from unittest.mock import patch, Mock
-from requests import Response
-from models import IMDb
 
 IMDB_DATA = {}
 
