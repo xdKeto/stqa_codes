@@ -25,4 +25,9 @@ jobs:
       
       - name: Run Unit Tests
         run: pytest
+
+      - name: Run tests
+        run: |
+          export PYTHONPATH=$PYTHONPATH:./04_factories_and_fakes
+          pytest 04_factories_and_fakes
         
