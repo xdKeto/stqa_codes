@@ -1,4 +1,3 @@
-from selenium.webdriver.support.ui import Select
 import requests
 from behave import given, when, then
 from selenium.webdriver.common.by import By
