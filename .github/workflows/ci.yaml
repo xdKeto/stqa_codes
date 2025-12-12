@@ -22,4 +22,7 @@ jobs:
 
       - name: Lint with Flake8
         run: flake8 . --count --select=E1,F4 --show-source --statistics
+      
+      - name: Run Unit Tests
+        run: pytest
         
