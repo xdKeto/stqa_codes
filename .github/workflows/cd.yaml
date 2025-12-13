@@ -39,7 +39,7 @@ jobs:
           done
 
       - name: Run Selenium Tests (Behave)
-        run: behave -f behave-html-pretty-formatter -o index.html
+        run: behave -f behave_html_pretty_formatter -o index.html
 
       - name: Upload Report
         if: always()
